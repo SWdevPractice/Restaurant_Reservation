@@ -136,7 +136,15 @@ exports.deleteReservation = async (req, res, next) => {
 exports.createReservation = async (req, res, next) => {
   try {
     const { restaurantId, date, status, ntable } = req.body;
-
+    const reservations = await Reservation.find({
+      user: req.user.id,
+    });
+    if (reservations.length >= 3) {
+      return res.status(400).json({
+        success: false,
+        msg: `User cannot have more than 3 reservation`,
+      });
+    }
     const restaurant = await Restaurant.findById(restaurantId);
 
     if (!restaurant) {
