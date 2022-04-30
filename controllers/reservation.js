@@ -5,12 +5,19 @@ exports.findAllReservations = async (req, res, next) => {
   try {
     const reservations = await Reservation.find();
 
-    // if(req.user.role !== "admin") {
-    //     return res.status(401).json({
-    //         success: false,
-    //         msg: "Users are not authorize"
-    //     })
-    // }
+    let query;
+
+    if (req.user.role !== "admin") {
+      query = Reservation.find({ user: req.user.id }).populate({
+        path: "restaurant",
+        select: "name address telephone openTime closeTime",
+      });
+    } else {
+      query = Reservation.find().populate({
+        path: "restaurant",
+        select: "name address telephone openTime closeTime",
+      });
+    }
 
     if (!reservations) {
       return res.status(404).json({
