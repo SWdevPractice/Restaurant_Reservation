@@ -10,6 +10,13 @@ exports.findAllRestaurants = async (req, res, next) => {
         msg: "restaurants not found",
       });
     }
+    // restaurants.forEach(async (restaurant) => {
+    //   var myIndex = restaurants.indexOf(restaurant);
+    //   const temp = await this.calculateRemainingTables(restaurant.id);
+    //   if (temp <= 0) {
+    //     restaurants.splice(myIndex, 1);
+    //   }
+    // });
 
     return res.status(200).json({
       success: true,
@@ -27,6 +34,7 @@ exports.findAllRestaurants = async (req, res, next) => {
 exports.findRestaurantById = async (req, res, next) => {
   try {
     const restaurant = await Restaurant.findById(req.params.id);
+    const remainingTable = await this.calculateRemainingTables(req.params.id);
 
     if (!restaurant) {
       return res.status(404).json({
@@ -34,10 +42,9 @@ exports.findRestaurantById = async (req, res, next) => {
         msg: "Restaurant not found",
       });
     }
-
     return res.status(200).json({
       sucess: true,
-      data: restaurant,
+      data: { ...restaurant._doc, remainingTable },
     });
   } catch (err) {
     console.log(err.stack);

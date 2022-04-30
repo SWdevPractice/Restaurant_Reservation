@@ -156,7 +156,7 @@ exports.createReservation = async (req, res, next) => {
         msg: `User cannot have more than 3 reservation`,
       });
     }
-    
+
     const restaurant = await Restaurant.findById(restaurantId);
 
     if (!restaurant) {
@@ -165,7 +165,6 @@ exports.createReservation = async (req, res, next) => {
         msg: `Restaurant not found`,
       });
     }
-
     //check if the restaurant have enough remaining tables
     if (ntable > (await calculateRemainingTables(restaurantId))) {
       return res.status(400).json({
@@ -175,21 +174,28 @@ exports.createReservation = async (req, res, next) => {
     }
 
     //check if the time in reservation is in range of opening time of the restaurant
-    let reserved_hours = date.getHours();
-    let reserved_min = date.getMinutes();
-    let reserved_time = (reserved_hours*3600) + (reserved_min*60);
+    let reserved_hours = date.split(":")[0].slice(-2);
+    let reserved_min = date.split(":")[1];
+    let reserved_time = reserved_hours * 3600 + reserved_min * 60;
 
     let restaurant_openTime_array = restaurant.openTime.split(":");
-    let restaurant_openTime = Number(restaurant_openTime_array[0])*3600 + Number(restaurant_openTime_array[1])*60;
+    let restaurant_openTime =
+      Number(restaurant_openTime_array[0]) * 3600 +
+      Number(restaurant_openTime_array[1]) * 60;
 
     let restaurant_closeTime_array = restaurant.closeTime.split(":");
-    let restaurant_closeTime = Number(restaurant_closeTime_array[0])*3600 + Number(restaurant_closeTime_array[1])*60;    
-    
-    if(reserved_time < restaurant_openTime || reserved_time > restaurant_closeTime) {
+    let restaurant_closeTime =
+      Number(restaurant_closeTime_array[0]) * 3600 +
+      Number(restaurant_closeTime_array[1]) * 60;
+
+    if (
+      reserved_time < restaurant_openTime ||
+      reserved_time > restaurant_closeTime
+    ) {
       return res.status(400).json({
         success: false,
-        msg: `The reservation time is not in range of restaurant's working time`
-      })
+        msg: `The reservation time is not in range of restaurant's working time`,
+      });
     }
 
     const reservation = await Reservation.create({
