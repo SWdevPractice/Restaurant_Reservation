@@ -35,6 +35,10 @@ const RestaurantSchema = new mongoose.Schema({
       "Please add a valid time 00:00-23:59",
     ],
   },
+  ntable: {
+    type: Number,
+    default: 10,
+  },
 });
 
 module.exports = mongoose.model("Restaurant", RestaurantSchema);

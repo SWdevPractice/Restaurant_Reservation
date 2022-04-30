@@ -4,12 +4,12 @@ exports.findAllReservations = async (req, res, next) => {
     try {
         const reservations = await Reservation.find();
         
-        if(req.user.role !== "admin") {
-            return res.status(401).json({
-                success: false,
-                msg: "Users are not authorize"
-            })
-        }
+        // if(req.user.role !== "admin") {
+        //     return res.status(401).json({
+        //         success: false,
+        //         msg: "Users are not authorize"
+        //     })
+        // }
 
         if(!reservations) {
             return res.status(404).json({
@@ -120,12 +120,36 @@ exports.deleteReservation = async (req, res, next) => {
             success: true,
             data: {}
         })
-        
+
     } catch (err) {
         console.log(err.stack);
         return res.status(500).json({
             success: false,
             msg: `Cannot delete a reservation`
+        })
+    }
+}
+
+exports.createReservation = async (req, res, next) => {
+    try {
+        const { restaurant, date } = req.body;
+
+        const reservation = await Reservation.create({
+            user: req.user.id,
+            restaurant,
+            date
+        })
+
+        return res.status(201).json({
+            success: false,
+            data: reservation
+        })
+
+    } catch (err) {
+        console.log(err.stack);
+        return res.status(400).json({
+            success: false,
+            data: err.message
         })
     }
 }

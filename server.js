@@ -19,6 +19,8 @@ connectDB();
 const app = express();
 // const hospitals = require("./routes/hospitals");
 const auth = require("./routes/auth");
+const restaurant = require("./routes/restaurant");
+const reservation = require("./routes/reservation");
 // const appointments = require("./routes/appointments");
 const limiter = rateLimit({
   windowsMs: 10 * 60 * 1000,
@@ -36,6 +38,8 @@ app.use(cors());
 // app.use("/api/v1/hospitals", hospitals);
 // app.use("/api/v1/appointments", appointments);
 app.use("/api/v1/auth", auth);
+app.use("/api/v1/restaurants", restaurant);
+app.use("/api/v1/reservations", reservation);
 
 const PORT = process.env.PORT || 5555;
 const server = app.listen(
