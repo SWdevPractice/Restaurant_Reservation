@@ -42,23 +42,20 @@ exports.findAllReservations = async (req, res, next) => {
     });
   }
 };
-
-exports.findMyReservations = async (req, res, next) => {
+exports.findReservationById = async (req, res, next) => {
   try {
-    const reservations = await Reservation.find({
-      user: req.user.id,
-    });
+    const reservation = await Reservation.findById(req.params.id);
 
-    if (!reservations) {
+    if (!reservation) {
       return res.status(404).json({
         success: false,
-        msg: "reservations not found",
+        msg: "Reservation not found",
       });
     }
 
     return res.status(200).json({
-      success: true,
-      data: reservations,
+      sucess: true,
+      data: reservation,
     });
   } catch (err) {
     console.log(err.stack);

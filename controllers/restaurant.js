@@ -26,7 +26,7 @@ exports.findAllRestaurants = async (req, res, next) => {
 
 exports.findRestaurantById = async (req, res, next) => {
   try {
-    const restaurant = await Restaurant.findById(req.id);
+    const restaurant = await Restaurant.findById(req.params.id);
 
     if (!restaurant) {
       return res.status(404).json({
