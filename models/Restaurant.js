@@ -41,4 +41,17 @@ const RestaurantSchema = new mongoose.Schema({
   },
 });
 
+RestaurantSchema.virtual("reservations", {
+  ref: "Reseravtion",
+  localField: "_id",
+  foreignField: "restaurant",
+  justOne: false,
+});
+
+RestaurantSchema.pre("remove", async function (next) {
+  console.log(`remove reservation ${this._id}`);
+  await this.model("Reservation").deleteMany({ restaurant: this._id });
+  next();
+});
+
 module.exports = mongoose.model("Restaurant", RestaurantSchema);

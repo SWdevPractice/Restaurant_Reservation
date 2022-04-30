@@ -6,12 +6,19 @@ exports.findAllReservations = async (req, res, next) => {
   try {
     const reservations = await Reservation.find();
 
-    // if(req.user.role !== "admin") {
-    //     return res.status(401).json({
-    //         success: false,
-    //         msg: "Users are not authorize"
-    //     })
-    // }
+    let query;
+
+    if (req.user.role !== "admin") {
+      query = Reservation.find({ user: req.user.id }).populate({
+        path: "restaurant",
+        select: "name address telephone openTime closeTime",
+      });
+    } else {
+      query = Reservation.find().populate({
+        path: "restaurant",
+        select: "name address telephone openTime closeTime",
+      });
+    }
 
     if (!reservations) {
       return res.status(404).json({
@@ -139,7 +146,7 @@ exports.createReservation = async (req, res, next) => {
     const { restaurantId, date, status, ntable } = req.body;
     const reservations = await Reservation.find({
       user: req.user.id,
-      status: "Ongoing"
+      status: "Ongoing",
     });
     if (reservations.length >= 3) {
       return res.status(400).json({
@@ -156,12 +163,12 @@ exports.createReservation = async (req, res, next) => {
       });
     }
 
-    if(ntable > calculateRemainingTables(restaurantId)) {
+    if (ntable > calculateRemainingTables(restaurantId)) {
       return res.status(400).json({
         success: false,
-        msg: `Restaurant does not have enough seats`
-      })
-    };
+        msg: `Restaurant does not have enough seats`,
+      });
+    }
 
     const reservation = await Reservation.create({
       user: req.user.id,
