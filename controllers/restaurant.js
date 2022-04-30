@@ -2,7 +2,19 @@ const Restaurant = require("../models/Restaurant");
 
 exports.findAllRestaurants = async (req, res, next) => {
     try {
-        const restaurants = await Restaurant.findAll();
+        let query;
+
+        const reqQuery = {...req.query};
+
+        //exclude fields
+        const removeFields = ['select', 'sort', 'page', 'limit'];
+
+        removeFields.forEach(param => {
+            delete reqQuery[param];
+        });
+
+
+        const restaurants = await Restaurant.find();
         if(!restaurants) {
             res.status(400).json({
                 success: false,
