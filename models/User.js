@@ -19,7 +19,10 @@ const UserSchema = new mongoose.Schema({
   telephone: {
     type: String,
     require: [true, "Please add a telephone number"],
-    match: [/^((\+66|0)(\d{9}))$/, "Please add a valid telephone number"],
+    match: [
+      /^((\+66|0)(\d{9}))$/,
+      "Please add a valid telephone number (0xxxxxxxxx)",
+    ],
   },
   role: {
     type: String,
@@ -54,4 +57,12 @@ UserSchema.methods.getSignedJwtToken = function () {
 UserSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
+
+UserSchema.virtual("reservations", {
+  ref: "Reseravtion",
+  localField: "_id",
+  foreignField: "user",
+  justOne: false,
+});
+
 module.exports = mongoose.model("User", UserSchema);
