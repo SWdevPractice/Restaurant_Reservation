@@ -53,4 +53,5 @@ RestaurantSchema.pre("remove", async function (next) {
   await this.model("Reservation").deleteMany({ restaurant: this._id });
   next();
 });
+
 module.exports = mongoose.model("Restaurant", RestaurantSchema);

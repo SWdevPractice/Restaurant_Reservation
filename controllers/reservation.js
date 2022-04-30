@@ -146,7 +146,7 @@ exports.createReservation = async (req, res, next) => {
     const { restaurantId, date, status, ntable } = req.body;
     const reservations = await Reservation.find({
       user: req.user.id,
-      status: "Ongoing"
+      status: "Ongoing",
     });
     if (reservations.length >= 3) {
       return res.status(400).json({
@@ -163,12 +163,12 @@ exports.createReservation = async (req, res, next) => {
       });
     }
 
-    if(ntable > calculateRemainingTables(restaurantId)) {
+    if (ntable > calculateRemainingTables(restaurantId)) {
       return res.status(400).json({
         success: false,
-        msg: `Restaurant does not have enough seats`
-      })
-    };
+        msg: `Restaurant does not have enough seats`,
+      });
+    }
 
     const reservation = await Reservation.create({
       user: req.user.id,
