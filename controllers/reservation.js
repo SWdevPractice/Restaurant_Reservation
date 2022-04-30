@@ -1,5 +1,6 @@
 const Reservation = require("../models/Reservation");
 const Restaurant = require("../models/Restaurant");
+const { calculateRemainingTables } = require("./restaurant");
 
 exports.findAllReservations = async (req, res, next) => {
   try {
@@ -145,6 +146,7 @@ exports.createReservation = async (req, res, next) => {
     const { restaurantId, date, status, ntable } = req.body;
     const reservations = await Reservation.find({
       user: req.user.id,
+      status: "Ongoing"
     });
     if (reservations.length >= 3) {
       return res.status(400).json({
@@ -160,6 +162,13 @@ exports.createReservation = async (req, res, next) => {
         msg: `Restaurant not found`,
       });
     }
+
+    if(ntable > calculateRemainingTables(restaurantId)) {
+      return res.status(400).json({
+        success: false,
+        msg: `Restaurant does not have enough seats`
+      })
+    };
 
     const reservation = await Reservation.create({
       user: req.user.id,
