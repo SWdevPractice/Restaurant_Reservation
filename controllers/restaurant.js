@@ -85,7 +85,7 @@ exports.createRestaurant = async (req, res, next) => {
     }
 }
 
-async function calculateRemainingTables(restaurantId) {
+exports.module = async function calculateRemainingTables(restaurantId) {
     let count = 0;
     
     const restaurant = await Restaurant.findById(restaurantId);
