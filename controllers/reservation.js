@@ -4,6 +4,13 @@ exports.findAllReservations = async (req, res, next) => {
     try {
         const reservations = await Reservation.find();
         
+        if(req.user.role !== "admin") {
+            return res.status(401).json({
+                success: false,
+                msg: "Users are not authorize"
+            })
+        }
+
         if(!reservations) {
             return res.status(404).json({
                 success: false,
@@ -63,12 +70,62 @@ exports.updateReservation = async (req, res, next) => {
             })
         }
 
-        if()
+        if(req.user.id !== reservation.user.toString() && req.user.role !== "admin") {
+            return res.status(401).json({
+                success: false,
+                msg: `This User is not authorize to update this reservation`
+            })
+        }
+        
+        reservation = await Reservation.findByIdAndUpdate(req.params.id, req.body, {
+            new: true,
+            runValidators: true
+        })
+
+        return res.status(200).json({
+            success: true,
+            data: reservation
+        }) 
+
     } catch (err) {
         console.log(err.stack);
-        return res.status(400).json({
+        return res.status(500).json({
             success: false,
-            data: err.msg
+            msg: `Cannot update a reservation`
+        })
+    }
+}
+
+exports.deleteReservation = async (req, res, next) => {
+    try {
+        const reservation = await Reservation.findById(req.params.id);
+
+        if(!reservation) {
+            return res.status(404).json({
+                success: false,
+                msg: `Reservation not found`
+            })
+        }
+
+        if(reservation.user.toString() !== req.user.id && req.user.role !== 'admin') {
+            return res.status(401).json({
+                success: false,
+                msg: `This user is unauthorize to delete this reservation`
+            })
+        }
+
+        await reservation.remove();
+
+        return res.status(200).json({
+            success: true,
+            data: {}
+        })
+        
+    } catch (err) {
+        console.log(err.stack);
+        return res.status(500).json({
+            success: false,
+            msg: `Cannot delete a reservation`
         })
     }
 }
