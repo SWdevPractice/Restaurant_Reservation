@@ -4,33 +4,36 @@ const { calculateRemainingTables } = require("./restaurant");
 
 exports.findAllReservations = async (req, res, next) => {
   try {
-    const reservations = await Reservation.find();
-
     let query;
-
     if (req.user.role !== "admin") {
       query = Reservation.find({ user: req.user.id }).populate({
         path: "restaurant",
         select: "name address telephone openTime closeTime",
       });
     } else {
-      query = Reservation.find().populate({
-        path: "restaurant",
-        select: "name address telephone openTime closeTime",
-      });
+      query = Reservation.find()
+        .populate({
+          path: "restaurant",
+          select: "name address telephone openTime closeTime",
+        })
+        .populate({
+          path: "user",
+          select: "name email telephone",
+        });
     }
-
-    if (!reservations) {
-      return res.status(404).json({
-        success: false,
-        msg: "reservations not found",
+    try {
+      const reservations = await query;
+      res.status(200).json({
+        success: true,
+        count: reservations.length,
+        data: reservations,
       });
+    } catch (e) {
+      console.log(e);
+      return res
+        .status(500)
+        .json({ success: false, message: "Cannot find Appointment" });
     }
-
-    return res.status(200).json({
-      success: true,
-      data: reservations,
-    });
   } catch (err) {
     console.log(err.stack);
     return res.status(400).json({
