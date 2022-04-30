@@ -1,4 +1,5 @@
 const Restaurant = require("../models/Restaurant");
+const Reservation = require("../models/Reservation");
 
 exports.findAllRestaurants = async (req, res, next) => {
     try {
@@ -82,4 +83,20 @@ exports.createRestaurant = async (req, res, next) => {
             data: err.msg
         })
     }
-   }
+}
+
+async function calculateRemainingTables(restaurantId) {
+    let count = 0;
+    
+    const restaurant = await Restaurant.findById(restaurantId);
+    const reservations = await Reservation.find({
+        restaurant: restaurantId,
+        status: "Ongoing"
+    });
+    
+    reservations.forEach(reservation => {
+        count += reservation.ntable
+    });
+
+    return restaurant.ntable - count;
+}
