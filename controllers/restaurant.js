@@ -100,3 +100,59 @@ exports.module = async function calculateRemainingTables(restaurantId) {
 
     return restaurant.ntable - count;
 }
+
+exports.updateRestaurant = async (req, res, next) => {
+    try {
+        let restaurant = await Restaurant.findById(req.params.id);
+
+        if(!restaurant) {
+            return res.status(404).json({
+                success: false,
+                msg: `restaurant not found`
+            })
+        }
+        restaurant = await Restaurant.findByIdAndUpdate(req.params.id, req.body, {
+            new: true,
+            runValidators: true
+        })
+
+        return res.status(200).json({
+            success: true,
+            data: restaurant
+        })
+
+    } catch (err) {
+        console.log(err.stack);
+        return res.status(500).json({
+            success: false,
+            msg: `Cannot update a restaurant`
+        })
+    }
+}
+
+exports.deleteRestaurant = async (req, res, next) => {
+    try {
+        const restaurant = await Restaurant.findById(req.params.id);
+
+        if(!restaurant) {
+            return res.status(404).json({
+                success: false,
+                msg: `restaurant not found`
+            })
+        }
+
+        await restaurant.remove();
+
+        return res.status(200).json({
+            success: true,
+            data: {}
+        })
+
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+            success: false,
+            msg: `Cannot delete a restaurant`
+        })
+    }
+}
