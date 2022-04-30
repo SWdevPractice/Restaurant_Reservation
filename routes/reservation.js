@@ -10,7 +10,7 @@ const {
 const router = express.Router();
 const { protect, authorize } = require("../middleware/auth");
 
-router.get("/", authorize("admin"), findAllReservations);
+router.get("/", protect, authorize("admin"), findAllReservations);
 router.get("/me", protect, findMyReservations);
 router.post("/", protect, createReservation);
 router.put("/:id", protect, updateReservation);

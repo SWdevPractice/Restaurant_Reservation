@@ -162,8 +162,7 @@ exports.createReservation = async (req, res, next) => {
         msg: `Restaurant not found`,
       });
     }
-
-    if (ntable > calculateRemainingTables(restaurantId)) {
+    if (ntable > (await calculateRemainingTables(restaurantId))) {
       return res.status(400).json({
         success: false,
         msg: `Restaurant does not have enough seats`,
