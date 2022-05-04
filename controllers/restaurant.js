@@ -3,7 +3,70 @@ const Reservation = require("../models/Reservation");
 
 exports.findAllRestaurants = async (req, res, next) => {
   try {
-    const restaurants = await Restaurant.find();
+    let query;
+
+    const reqQuery = {...req.query};
+
+    //excluded fields
+    const removeFields = ['select', 'sort', 'page', 'limit'];
+
+    removeFields.forEach(param => {
+      delete reqQuery[param];
+    })
+
+    let queryStr = JSON.stringify(reqQuery);
+
+    queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
+
+    query = Restaurant.find(JSON.parse(queryStr))
+    //.populate('reservation');
+
+    //Select
+    if(req.query.select) {
+      //match nosql syntax
+      const fields = req.query.select.split(',').join(' ');
+      query = query.select(fields)
+    }
+
+    //Sort
+    if(req.query.sort) {
+      //match NoSQL syntax
+      const soryBy = req.query.sort.split(',').join(' ');
+      query = query.sort(soryBy);
+    } else {
+      query = query.sort('name');
+    }
+
+    //Pagination
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 25;
+    const startIndex = (page-1) * limit;
+    const endIndex = page * limit;
+    const total = await Restaurant.countDocuments();
+
+    query = query.skip(startIndex).limit(limit);
+
+    //executing query
+    const restaurants = await query
+    //const restaurants = await Restaurant.find();
+
+    const pagination = {};
+
+    if (endIndex < total) {
+      pagination.next = {
+        page: page+1,
+        limit
+      }
+    }
+
+    if (startIndex > 0) {
+      pagination.prev = {
+        page: page-1,
+        limit
+      }
+    }
+
+
     if (!restaurants) {
       res.status(400).json({
         success: false,
@@ -20,8 +83,11 @@ exports.findAllRestaurants = async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      data: restaurants,
+      count: restaurants.length,
+      pagination,
+      data: restaurants
     });
+
   } catch (err) {
     console.log(err.stack);
     return res.status(400).json({
