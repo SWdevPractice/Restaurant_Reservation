@@ -8,7 +8,7 @@ const {
 } = require("../controllers/reservation");
 
 const router = express.Router();
-const { protect } = require("../middleware/auth");
+const { protect, authorize } = require("../middleware/auth");
 
 router.get("/", protect, findAllReservations);
 router.get("/:id", protect, findReservationById);
