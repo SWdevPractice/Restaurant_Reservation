@@ -26,7 +26,6 @@ const ReservationSchema = new mongoose.Schema({
   ntable: {
     type: Number,
     default: 1,
-    require: [true, "Please add number of tables"],
   },
   status: {
     type: String,
