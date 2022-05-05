@@ -12,7 +12,7 @@ const { protect } = require("../middleware/auth");
 
 router.get("/", protect, findAllReservations);
 router.get("/:id", protect, findReservationById);
-router.post("/", protect, createReservation);
+router.post("/", protect, authorize("user"), createReservation);
 router.put("/:id", protect, updateReservation);
 router.delete("/:id", protect, deleteReservation);
 
